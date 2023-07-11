@@ -4,10 +4,18 @@
 
 type Link {
   description: String!
-  id: Int!
+  id: String!
+  linkStatus: String!
   url: String!
+}
+
+type Mutation {
+  deleteLink(id: String!): Link!
+  post(description: String!, url: String!): Link!
+  updateLink(description: String!, id: String!, url: String!): Link!
 }
 
 type Query {
   feed: [Link!]!
+  link(id: String!): Link
 }
