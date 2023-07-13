@@ -11,9 +11,11 @@ export const Link = objectType({
     t.field('postedBy', {
       type: 'User',
       resolve(parent, args, context) {
-        return context.prismaClient.link.findUnique({
-          where: { id: parent.id },
-        }).postedBy();
+        return context.prismaClient.link
+          .findUnique({
+            where: { id: parent.id },
+          })
+          .postedBy();
       },
     });
   },
@@ -32,7 +34,7 @@ export const LinksQuery = extendType({
     t.nonNull.list.nonNull.field('feed', {
       type: 'Link',
       async resolve(parent, args, context, info) {
-        return await context.prismaClient.link.findMany()
+        return await context.prismaClient.link.findMany();
       },
     });
   },
@@ -69,6 +71,11 @@ export const LinkPostMutation = extendType({
       },
       async resolve(parent, args, context) {
         const { description, url } = args;
+        const { userId } = context;
+
+        if (!userId) {
+          throw new Error('Cannot post without logging in');
+        }
 
         const newLink = await context.prismaClient.link.create({
           data: {
@@ -76,6 +83,7 @@ export const LinkPostMutation = extendType({
             description: description,
             url: url,
             linkStatus: 'ACTIVE',
+            postedBy: { connect: { id: userId } },
           },
         });
 
