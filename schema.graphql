@@ -2,6 +2,11 @@
 ### Do not make changes to this file directly
 
 
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 type Link {
   description: String!
   id: String!
@@ -12,13 +17,16 @@ type Link {
 
 type Mutation {
   deleteLink(id: String!): Link!
+  login(email: String!, password: String!): AuthPayload!
   post(description: String!, url: String!): Link!
+  singUp(email: String!, name: String!, password: String!): AuthPayload!
   updateLink(description: String!, id: String!, url: String!): Link!
 }
 
 type Query {
   feed: [Link!]!
   link(id: String!): Link
+  users: [User!]!
 }
 
 type User {

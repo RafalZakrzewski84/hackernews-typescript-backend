@@ -28,6 +28,10 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  AuthPayload: { // root type
+    token: string; // String!
+    user: NexusGenRootTypes['User']; // User!
+  }
   Link: { // root type
     description: string; // String!
     id: string; // String!
@@ -54,6 +58,10 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
+  AuthPayload: { // field return type
+    token: string; // String!
+    user: NexusGenRootTypes['User']; // User!
+  }
   Link: { // field return type
     description: string; // String!
     id: string; // String!
@@ -63,12 +71,15 @@ export interface NexusGenFieldTypes {
   }
   Mutation: { // field return type
     deleteLink: NexusGenRootTypes['Link']; // Link!
+    login: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     post: NexusGenRootTypes['Link']; // Link!
+    singUp: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     updateLink: NexusGenRootTypes['Link']; // Link!
   }
   Query: { // field return type
     feed: NexusGenRootTypes['Link'][]; // [Link!]!
     link: NexusGenRootTypes['Link'] | null; // Link
+    users: NexusGenRootTypes['User'][]; // [User!]!
   }
   User: { // field return type
     email: string; // String!
@@ -79,6 +90,10 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  AuthPayload: { // field return type name
+    token: 'String'
+    user: 'User'
+  }
   Link: { // field return type name
     description: 'String'
     id: 'String'
@@ -88,12 +103,15 @@ export interface NexusGenFieldTypeNames {
   }
   Mutation: { // field return type name
     deleteLink: 'Link'
+    login: 'AuthPayload'
     post: 'Link'
+    singUp: 'AuthPayload'
     updateLink: 'Link'
   }
   Query: { // field return type name
     feed: 'Link'
     link: 'Link'
+    users: 'User'
   }
   User: { // field return type name
     email: 'String'
@@ -108,9 +126,18 @@ export interface NexusGenArgTypes {
     deleteLink: { // args
       id: string; // String!
     }
+    login: { // args
+      email: string; // String!
+      password: string; // String!
+    }
     post: { // args
       description: string; // String!
       url: string; // String!
+    }
+    singUp: { // args
+      email: string; // String!
+      name: string; // String!
+      password: string; // String!
     }
     updateLink: { // args
       description: string; // String!

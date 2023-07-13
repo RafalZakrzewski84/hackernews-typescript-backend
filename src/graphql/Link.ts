@@ -31,15 +31,8 @@ export const LinksQuery = extendType({
   definition(t) {
     t.nonNull.list.nonNull.field('feed', {
       type: 'Link',
-      resolve(parent, args, context, info) {
-        return context.prismaClient.link.findMany().then(links =>
-          links.map(link => ({
-            description: link.description,
-            id: link.id,
-            linkStatus: link.linkStatus,
-            url: link.url,
-          }))
-        );
+      async resolve(parent, args, context, info) {
+        return await context.prismaClient.link.findMany()
       },
     });
   },
@@ -53,9 +46,9 @@ export const LinkQuery = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve(parent, args, context, info) {
+      async resolve(parent, args, context, info) {
         const { id } = args;
-        const foundLink = context.prismaClient.link.findUnique({
+        const foundLink = await context.prismaClient.link.findUnique({
           where: { id: id },
         });
 
@@ -74,10 +67,10 @@ export const LinkPostMutation = extendType({
         description: nonNull(stringArg()),
         url: nonNull(stringArg()),
       },
-      resolve(parent, args, context) {
+      async resolve(parent, args, context) {
         const { description, url } = args;
 
-        const newlink = context.prismaClient.link.create({
+        const newLink = await context.prismaClient.link.create({
           data: {
             id: uuid(),
             description: description,
@@ -86,7 +79,7 @@ export const LinkPostMutation = extendType({
           },
         });
 
-        return newlink;
+        return newLink;
       },
     });
   },
@@ -100,10 +93,10 @@ export const LinkDeleteMutation = extendType({
       args: {
         id: nonNull(stringArg()),
       },
-      resolve(parent, args, context) {
+      async resolve(parent, args, context) {
         const { id } = args;
 
-        const newFoundLink = context.prismaClient.link.delete({
+        const newFoundLink = await context.prismaClient.link.delete({
           where: { id: id },
         });
 
@@ -123,10 +116,10 @@ export const LinkUpdateMutation = extendType({
         description: nonNull(stringArg()),
         url: nonNull(stringArg()),
       },
-      resolve(parent, args, context) {
+      async resolve(parent, args, context) {
         const { id, description, url } = args;
 
-        const newFoundLink = context.prismaClient.link.update({
+        const newFoundLink = await context.prismaClient.link.update({
           where: { id: id },
           data: {
             description: description,
