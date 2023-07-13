@@ -28,7 +28,7 @@ let links: NexusGenObjects['Link'][] = [
 ];
 
 const emptyLink = {
-  id: 'Link not found',
+  id: '',
   description: 'Link not found',
   url: 'Link not found',
   linkStatus: 'Link not found',
@@ -111,7 +111,7 @@ export const LinkDeleteMutation = extendType({
           foundLink = links.find(link => link.id === id);
         }
 
-        return foundLink || emptyLink;
+        return foundLink || {...emptyLink, id: id};
       },
     });
   },
@@ -146,7 +146,7 @@ export const LinkUpdateMutation = extendType({
           foundLink = links.find(link => link.id === id);
         }
 
-        return foundLink || emptyLink;
+        return foundLink ||  {...emptyLink, id: id};
       },
     });
   },
