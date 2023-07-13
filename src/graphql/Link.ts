@@ -1,6 +1,5 @@
 import { objectType, extendType, nonNull, stringArg } from 'nexus';
-import { NexusGenObjects, NexusGenFieldTypes } from '../../nexus-typegen';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 export const Link = objectType({
   name: 'Link',
@@ -9,23 +8,16 @@ export const Link = objectType({
     t.nonNull.string('description');
     t.nonNull.string('url');
     t.nonNull.string('linkStatus');
+    t.field('postedBy', {
+      type: 'User',
+      resolve(parent, args, context) {
+        return context.prismaClient.link.findUnique({
+          where: { id: parent.id },
+        }).postedBy();
+      },
+    });
   },
 });
-
-let links: NexusGenObjects['Link'][] = [
-  {
-    id: uuidv4(),
-    url: 'www.howtographql.com',
-    description: 'Fullstack tutorial for GraphQL',
-    linkStatus: 'ACTIVE',
-  },
-  {
-    id: uuidv4(),
-    url: 'graphql.org',
-    description: 'GraphQL official website',
-    linkStatus: 'ACTIVE',
-  },
-];
 
 const emptyLink = {
   id: '',
@@ -40,7 +32,14 @@ export const LinksQuery = extendType({
     t.nonNull.list.nonNull.field('feed', {
       type: 'Link',
       resolve(parent, args, context, info) {
-        return links;
+        return context.prismaClient.link.findMany().then(links =>
+          links.map(link => ({
+            description: link.description,
+            id: link.id,
+            linkStatus: link.linkStatus,
+            url: link.url,
+          }))
+        );
       },
     });
   },
@@ -56,7 +55,9 @@ export const LinkQuery = extendType({
       },
       resolve(parent, args, context, info) {
         const { id } = args;
-        const foundLink = links.find(link => link.id === id);
+        const foundLink = context.prismaClient.link.findUnique({
+          where: { id: id },
+        });
 
         return foundLink || null;
       },
@@ -76,16 +77,16 @@ export const LinkPostMutation = extendType({
       resolve(parent, args, context) {
         const { description, url } = args;
 
-        const link = {
-          id: uuidv4(),
-          description: description,
-          url: url,
-          linkStatus: 'ACTIVE',
-        };
+        const newlink = context.prismaClient.link.create({
+          data: {
+            id: uuid(),
+            description: description,
+            url: url,
+            linkStatus: 'ACTIVE',
+          },
+        });
 
-        links.push(link);
-
-        return link;
+        return newlink;
       },
     });
   },
@@ -102,16 +103,11 @@ export const LinkDeleteMutation = extendType({
       resolve(parent, args, context) {
         const { id } = args;
 
-        let foundLink = links.find(link => link.id === id);
+        const newFoundLink = context.prismaClient.link.delete({
+          where: { id: id },
+        });
 
-        if (foundLink) {
-          links = links.map(link =>
-            link.id === id ? { ...link, linkStatus: 'DELETED' } : link
-          );
-          foundLink = links.find(link => link.id === id);
-        }
-
-        return foundLink || {...emptyLink, id: id};
+        return newFoundLink || { ...emptyLink, id: id };
       },
     });
   },
@@ -130,23 +126,16 @@ export const LinkUpdateMutation = extendType({
       resolve(parent, args, context) {
         const { id, description, url } = args;
 
-        let foundLink = links.find(link => link.id === id);
+        const newFoundLink = context.prismaClient.link.update({
+          where: { id: id },
+          data: {
+            description: description,
+            url: url,
+            linkStatus: 'UPDATED',
+          },
+        });
 
-        if (foundLink) {
-          links = links.map(link =>
-            link.id === id
-              ? {
-                  ...link,
-                  description: description,
-                  url: url,
-                  linkStatus: 'UPDATED',
-                }
-              : link
-          );
-          foundLink = links.find(link => link.id === id);
-        }
-
-        return foundLink ||  {...emptyLink, id: id};
+        return newFoundLink || { ...emptyLink, id: id };
       },
     });
   },
