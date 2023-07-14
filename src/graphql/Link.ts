@@ -1,5 +1,30 @@
-import { objectType, extendType, nonNull, stringArg } from 'nexus';
+import {
+  extendType,
+  nonNull,
+  objectType,
+  stringArg,
+  intArg,
+  inputObjectType,
+  enumType,
+  arg,
+  list,
+} from 'nexus';
+import { Prisma } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
+
+export const LinkOrderByInput = inputObjectType({
+  name: 'LinkOrderByInput',
+  definition(t) {
+    t.field('description', { type: Sort });
+    t.field('url', { type: Sort });
+    t.field('createdAt', { type: Sort });
+  },
+});
+
+export const Sort = enumType({
+  name: 'Sort',
+  members: ['asc', 'desc'],
+});
 
 export const Link = objectType({
   name: 'Link',
@@ -42,8 +67,30 @@ export const LinksQuery = extendType({
   definition(t) {
     t.nonNull.list.nonNull.field('feed', {
       type: 'Link',
+      args: {
+        filter: stringArg(),
+        skip: intArg(),
+        take: intArg(),
+        orderBy: arg({ type: list(nonNull(LinkOrderByInput)) }),
+      },
       async resolve(parent, args, context, info) {
-        return await context.prismaClient.link.findMany();
+        const { filter, skip, take, orderBy } = args;
+        const where = filter
+          ? {
+              OR: [
+                { description: { contains: filter } },
+                { url: { contains: filter } },
+              ],
+            }
+          : {};
+        return await context.prismaClient.link.findMany({
+          where,
+          skip: skip as number | undefined,
+          take: take as number | undefined,
+          orderBy: orderBy as
+            | Prisma.Enumerable<Prisma.LinkOrderByWithRelationInput>
+            | undefined,
+        });
       },
     });
   },
