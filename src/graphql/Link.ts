@@ -26,6 +26,15 @@ export const Sort = enumType({
   members: ['asc', 'desc'],
 });
 
+export const Feed = objectType({
+  name: 'Feed',
+  definition(t) {
+    t.nonNull.list.nonNull.field('links', { type: Link });
+    t.nonNull.int('count');
+    t.nonNull.id('id');
+  },
+});
+
 export const Link = objectType({
   name: 'Link',
   definition(t) {
@@ -65,15 +74,15 @@ const emptyLink = {
 export const LinksQuery = extendType({
   type: 'Query',
   definition(t) {
-    t.nonNull.list.nonNull.field('feed', {
-      type: 'Link',
+    t.nonNull.field('feed', {
+      type: 'Feed',
       args: {
         filter: stringArg(),
         skip: intArg(),
         take: intArg(),
         orderBy: arg({ type: list(nonNull(LinkOrderByInput)) }),
       },
-      async resolve(parent, args, context, info) {
+      async resolve(parent, args, context) {
         const { filter, skip, take, orderBy } = args;
         const where = filter
           ? {
@@ -83,7 +92,8 @@ export const LinksQuery = extendType({
               ],
             }
           : {};
-        return await context.prismaClient.link.findMany({
+
+        const links = await context.prismaClient.link.findMany({
           where,
           skip: skip as number | undefined,
           take: take as number | undefined,
@@ -91,6 +101,16 @@ export const LinksQuery = extendType({
             | Prisma.Enumerable<Prisma.LinkOrderByWithRelationInput>
             | undefined,
         });
+
+        const count = await context.prismaClient.link.count({ where });
+
+        const id = `main-feed:${JSON.stringify(args)}`;
+
+        return {
+          links,
+          count,
+          id,
+        };
       },
     });
   },
