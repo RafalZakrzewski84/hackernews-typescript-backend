@@ -8,6 +8,7 @@ export const Link = objectType({
     t.nonNull.string('description');
     t.nonNull.string('url');
     t.nonNull.string('linkStatus');
+    t.nonNull.dateTime('createdAt');
     t.field('postedBy', {
       type: 'User',
       resolve(parent, args, context) {
