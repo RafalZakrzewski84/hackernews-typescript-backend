@@ -15,17 +15,20 @@ generator client {
 // 3
 model Link {
   id          String   @id @default(uuid())  // Change the type to String and use @default(uuid()) for generating UUIDs
+  createdAt   DateTime @default(now())
   description String
   url         String
   linkStatus  String
-  postedBy    User?    @relation(fields: [postedById], references: [id])
+  postedBy    User?    @relation(name: "PostedBy", fields: [postedById], references: [id])
   postedById  String?
+  voters      User[]   @relation(name: "Votes")
 }
 
 model User {
-  id        String   @id @default(uuid())   // Change the type to String and use @default(uuid()) for generating UUIDs
-  name      String
-  email     String   @unique
-  password  String
-  links     Link[]
+  id       String @id @default(uuid())   // Change the type to String and use @default(uuid()) for generating UUIDs
+  name     String
+  email    String @unique
+  password String
+  links    Link[] @relation(name: "PostedBy")
+  votes    Link[] @relation(name: "Votes")
 }

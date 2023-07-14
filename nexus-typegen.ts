@@ -45,6 +45,10 @@ export interface NexusGenObjects {
     id: string; // String!
     name: string; // String!
   }
+  Vote: { // root type
+    link: NexusGenRootTypes['Link']; // Link!
+    user: NexusGenRootTypes['User']; // User!
+  }
 }
 
 export interface NexusGenInterfaces {
@@ -68,6 +72,7 @@ export interface NexusGenFieldTypes {
     linkStatus: string; // String!
     postedBy: NexusGenRootTypes['User'] | null; // User
     url: string; // String!
+    voters: NexusGenRootTypes['User'][]; // [User!]!
   }
   Mutation: { // field return type
     deleteLink: NexusGenRootTypes['Link']; // Link!
@@ -75,6 +80,7 @@ export interface NexusGenFieldTypes {
     post: NexusGenRootTypes['Link']; // Link!
     singUp: NexusGenRootTypes['AuthPayload']; // AuthPayload!
     updateLink: NexusGenRootTypes['Link']; // Link!
+    vote: NexusGenRootTypes['Vote'] | null; // Vote
   }
   Query: { // field return type
     feed: NexusGenRootTypes['Link'][]; // [Link!]!
@@ -86,6 +92,11 @@ export interface NexusGenFieldTypes {
     id: string; // String!
     links: NexusGenRootTypes['Link'][]; // [Link!]!
     name: string; // String!
+    votes: NexusGenRootTypes['Link'][]; // [Link!]!
+  }
+  Vote: { // field return type
+    link: NexusGenRootTypes['Link']; // Link!
+    user: NexusGenRootTypes['User']; // User!
   }
 }
 
@@ -100,6 +111,7 @@ export interface NexusGenFieldTypeNames {
     linkStatus: 'String'
     postedBy: 'User'
     url: 'String'
+    voters: 'User'
   }
   Mutation: { // field return type name
     deleteLink: 'Link'
@@ -107,6 +119,7 @@ export interface NexusGenFieldTypeNames {
     post: 'Link'
     singUp: 'AuthPayload'
     updateLink: 'Link'
+    vote: 'Vote'
   }
   Query: { // field return type name
     feed: 'Link'
@@ -118,6 +131,11 @@ export interface NexusGenFieldTypeNames {
     id: 'String'
     links: 'Link'
     name: 'String'
+    votes: 'Link'
+  }
+  Vote: { // field return type name
+    link: 'Link'
+    user: 'User'
   }
 }
 
@@ -143,6 +161,9 @@ export interface NexusGenArgTypes {
       description: string; // String!
       id: string; // String!
       url: string; // String!
+    }
+    vote: { // args
+      linkId: string; // String!
     }
   }
   Query: {
